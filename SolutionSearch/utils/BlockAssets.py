@@ -130,13 +130,11 @@ class BlockDataClass:
         "W_3x3": [[0, 1], [0, 3], [1, 3], [1, 2], [2, 2], [2, 1], [3, 1], [3, 0], [1, 0], [1, 1]]
     }
     def __init__(self, ID, name, state, color, world_sz=np.array([20,40])):
-
         self.__dict__['ID'] =ID
         self.__dict__['name']=name
+        self.__dict__['dtype'] = 'int8'
         self.__dict__['state']=np.array(state,dtype=self.dtype)
         self.__dict__['color']=color
-
-        self.__dict__['dtype'] = 'int8'
         self.__dict__['world_sz'] = world_sz
 
     def add(self,other):
@@ -211,6 +209,13 @@ class BlockDataClass:
         # Pad and Return
         padded_asset = np.pad(asset, [(pad_bot, pad_top), (pad_left, pad_right)], mode='constant')
         return padded_asset
+
+    @property
+    def mask(self):
+        return self.layer
+    @property
+    def sum(self):
+        return np.sum(BlockDataClass.AssetDict[self.name])
 
 
 class BlockObj:
