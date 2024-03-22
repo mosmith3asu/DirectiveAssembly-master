@@ -18,9 +18,17 @@ class FunnelObj:
     def __init__(self):
         self.name = "funnel"
         state0 = [0,0,0]
-        self.block_list = ["I_3x1", "L_2x2", "W_3x3", "L_2x2", "L_2x2", "L_2x2",
-                              "Y_3x3", "W_3x3", "L_3x2", "I_3x1", "W_3x3", "I_2x1",
-                              "L_2x2", "I_2x1", "I_2x1", "L_2x2", "T_3x3"]
+        # self.block_list = ["I_3x1", "L_2x2", "W_3x3", "L_2x2", "L_2x2", "L_2x2",
+        #                       "Y_3x3", "W_3x3", "L_3x2", "I_3x1", "W_3x3", "I_2x1",
+        #                       "L_2x2", "I_2x1", "I_2x1", "L_2x2", "T_3x3"]
+        self.block_list = ["I_3x1", "L_2x2", "W_3x3", "L_2x2", "L_2x2", "L_2x2","Y_3x3",
+                           "W_3x3", "L_3x2", "I_3x1", "W_3x3", "L_2x2", "L_2x2", "T_3x3"] # removed I_2x1
+
+        # self.block_list =    ["Z_3x2", 'Z_3x3', "W_3x3", "T_3x2", "I_3x1", "L_2x2", "L_2x2", "L_2x2"] # 432 solutions
+
+        # self.block_list = ['Z_3x2','U_2x2','U_3x2','L_2x2','L_3x2','W_3x3','T_3x3']; warnings.warn('Test blockset in funnel obj...')
+
+
         self.n_blocks = len(self.block_list)
         self.blocks = []
         for ib,bname in enumerate(self.block_list):
