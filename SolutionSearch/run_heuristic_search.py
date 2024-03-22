@@ -113,6 +113,8 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
 
     print(f'\n### Searching Possible Combinations for Solutions ###')
     print(f'\t| Structure: [{structure.name}]')
+
+    # valid_combs = valid_combs[:16]
     valid_states_ID = [list(np.arange(len(blk_states))) for blk_states in valid_states]
     blocks = structure.blocks
 
@@ -125,6 +127,8 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
         comb_states =  [valid_states[b] for b in c] # take only valid states for this combination of blocks
         comb_blocks = [blocks[b] for b in c]
         iterate_blocks(structure,mask, comb_blocks, comb_states, k=0)
+
+    print(np.shape(SOLUTIONS))
     if len(SOLUTIONS)>0: save_solutions(structure.name,SOLUTIONS)
 
 
