@@ -10,6 +10,10 @@ import math
 import random
 import copy
 import pickle
+import multiprocessing
+
+n_workers = 10
+
 
 def get_checksum_combinations(structure):
     """
@@ -67,17 +71,13 @@ def search_valid_states(structure):
 
 
 ############################################################
-SOLUTIONS = {}
+# SOLUTIONS = {}
 
-def iterate_blocks(structure,mask,blocks,block_states,k,plot_sol=False):
-    # SOLS: [9,3,1,34,0,23,29]
-
+def iterate_blocks(structure,mask,blocks,block_states,SOLUTIONS,k=0,plot_sol=False):
     this_block =  blocks[k]
     this_mask = mask.copy()
 
-
     for istate, bstate in enumerate(block_states[k]):
-
         # place block
         this_block(bstate)
         this_mask -= this_block.mask
@@ -90,17 +90,47 @@ def iterate_blocks(structure,mask,blocks,block_states,k,plot_sol=False):
         # Save solution or increase recursion depth
         if is_valid:
             if k == len(blocks) - 1:
-                print(f'\r [n={len(SOLUTIONS)}] found!', end='')
-                # print([blk.state for blk in blocks])
-                # SOLUTIONS.append([copy.deepcopy(blk.data) for blk in blocks])
+                print(f'\t| \r [{round(100*SOLUTIONS[f"completed"]/SOLUTIONS[f"total"])}%][n={len(SOLUTIONS)}] found!', end='') #
                 SOLUTIONS[len(SOLUTIONS)+1] = [copy.deepcopy(blk.data) for blk in blocks]
                 if plot_sol: plot_structure(structure, blocks)
+                # this_mask = mask.copy() # remove block and continue to find solution
+                break # if solution is found, this is only valid placement for block
             else:
-                iterate_blocks(structure, this_mask, blocks, block_states, k + 1)
+                iterate_blocks(structure, this_mask, blocks, block_states,SOLUTIONS, k=k+1)
 
         # remove placed block  if invalid
         else: this_mask = mask.copy()
     blocks[k]((0,0,0))
+
+
+
+def mp_worker(iworker,structure,my_combs,valid_states,SOLUTIONS):
+    # n_combs = len(my_combs)
+    blocks = copy.deepcopy(structure.blocks)
+    for ic, c in enumerate(my_combs):
+        mask = structure.mask.copy()
+        comb_states = [valid_states[b] for b in c]  # take only valid states for this combination of blocks
+        comb_blocks = [blocks[b] for b in c]
+        iterate_blocks(structure, mask, comb_blocks, comb_states,SOLUTIONS, k=0)
+        # SOLUTIONS[f"worker{iworker}"] = ic
+        SOLUTIONS[f"completed"] += 1
+
+        # if iworker == 1:
+        #     print(f'\nPROGRESS: {[SOLUTIONS[f"worker{w}"] for w in range(n_workers)]}')
+
+
+
+def split_combs(combs):
+    # n_per_split = int(len(valid_combs)/4)
+    n_per_split = math.ceil(len(combs)/n_workers)
+
+    comb_slits = []
+    for i in range(n_workers):
+        imax = min((i+1)*n_per_split,len(combs))
+        this_split = combs[i * n_per_split:imax]
+        # this_split = valid_combs[i*n_per_split:(i+1)*n_per_split]
+        comb_slits.append(this_split)
+    return comb_slits
 
 
 def search_combination_solutions_heiarchical(structure,valid_combs,valid_states):
@@ -110,32 +140,55 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
     :param combs:
     :return:
     """
+    # valid_combs = valid_combs[:16]
 
     print(f'\n### Searching Possible Combinations for Solutions ###')
     print(f'\t| Structure: [{structure.name}]')
 
-    # valid_combs = valid_combs[:16]
-    valid_states_ID = [list(np.arange(len(blk_states))) for blk_states in valid_states]
-    blocks = structure.blocks
+    comb_slits = split_combs(valid_combs)
 
-    n_combs=len(valid_combs)
-    for ic, c in enumerate(valid_combs):
-        print(f'\nStarting Comb: {ic}/{n_combs} | n_blocks= { len(c)}')
-        print(f'\r [n={len(SOLUTIONS)}] found!', end='')
+    # Split valid combs to be searched by workers
+    # split_indicies = np.array_split(np.arange(len(valid_combs)), n_workers)
+    # comb_slits= []
+    # for idxs in split_indicies:
+    #     this_combs = [valid_combs[i] for i in idxs]
+    #     comb_slits.append(this_combs)
 
-        mask = structure.mask.copy()
-        comb_states =  [valid_states[b] for b in c] # take only valid states for this combination of blocks
-        comb_blocks = [blocks[b] for b in c]
-        iterate_blocks(structure,mask, comb_blocks, comb_states, k=0)
+    # Set up MP manager ------------------------------------------------
+    manager = multiprocessing.Manager()
+    SOLUTIONS = manager.dict()
 
-    print(np.shape(SOLUTIONS))
-    if len(SOLUTIONS)>0: save_solutions(structure.name,SOLUTIONS)
+    SOLUTIONS[f"total"] = len(valid_combs)
+    SOLUTIONS[f"completed"] = 0
+
+    # for worker in range(n_workers):
+    #     SOLUTIONS[f'worker{worker}'] = 0
+    jobs = []
+
+    # Start jobs ------------------------------------------------
+    for i in range(n_workers):
+        p = multiprocessing.Process(target=mp_worker, args=(i, structure,comb_slits[i],valid_states,SOLUTIONS))
+        jobs.append(p)
+        p.start()
+    for proc in jobs:
+        proc.join()
+
+    # Save ------------------------------------------------
+    del SOLUTIONS['total']
+    del SOLUTIONS['completed']
+    if len(SOLUTIONS) > 0:
+        SOLUTIONS['structure'] = structure.name
+        SOLUTIONS['blocklist'] = structure.block_list
+        save_solutions(structure.name, SOLUTIONS)
+    else:
+        print(f'NO SOLUTIONS FOUND')
+
+
 
 
 def main():
-    # structure = FunnelObj()
+    structure = FunnelObj()
     structure = OvalObj()
-
 
 
     valid_combs = get_checksum_combinations(structure)
@@ -164,6 +217,7 @@ def main():
 
 
 def save_solutions(struct_name, sols):
+    print(f'Saving....')
     from datetime import datetime
     now = datetime.now()  # current date and time
     fname = now.strftime(f"Solutions/{struct_name}__N{len(sols)}__D%m-%d-%Y__T%H-%M-%S.pkl")

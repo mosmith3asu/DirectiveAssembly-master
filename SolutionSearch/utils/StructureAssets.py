@@ -34,16 +34,78 @@ class FunnelObj:
         for ib,bname in enumerate(self.block_list):
             self.blocks.append(BlockDataClass(ID=ib, name=bname, state=state0, color='r', world_sz=np.array([10,10])))
         self.mask = np.array(
-            [[0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,1,1,0,0,0,0],
-            [0,0,0,1,1,1,1,0,0,0],
-            [0,0,0,1,1,1,1,0,0,0],
-            [0,0,1,1,1,1,1,1,0,0],
-            [0,0,1,1,1,1,1,1,0,0],
-            [0,1,1,1,1,1,1,1,1,0],
-            [0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0]])
+            [[0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
+             [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
+             [0 ,0 ,0 ,0 ,1 ,1 ,0 ,0 ,0 ,0],
+             [0 ,0 ,0 ,1 ,1 ,1 ,1 ,0 ,0 ,0],
+             [0 ,0 ,0 ,1 ,1 ,1 ,1 ,0 ,0 ,0],
+             [0 ,0 ,1 ,1 ,1 ,1 ,1 ,1 ,0 ,0],
+             [0 ,0 ,1 ,1 ,1 ,1 ,1 ,1 ,0 ,0],
+             [0 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,1 ,0],
+             [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0],
+             [0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0]])
+        self._check_mask = np.copy(self.mask)
+        self.sum = np.sum(self.mask)
+
+class OvalObj:
+    def __init__(self):
+        self.name = "oval"
+        state0 = [0,0,0]
+
+        # Infeasible number of searchs
+        # self.block_list = ["W_3x3", "I_3x1", "Z_3x2", "L_2x2", "I_3x1", "T_3x3","L_2x2",
+        #                    "W_3x3", "I_3x1", "W_3x3", "Z_3x3", "U_2x2", "Z_3x2", "L_2x2","L_2x2","U_2x2","I_3x1"] # removed I_2x1
+
+        self.block_list = ["W_3x3", "Z_3x3", "W_3x3", "Z_3x2", "Z_3x2", "T_3x3", "L_2x2",
+                           "W_3x3", "U_2x2", "I_3x1", "I_3x1", "I_3x1","L_2x2"]
+
+
+        self.n_blocks = len(self.block_list)
+        self.blocks = []
+        for ib,bname in enumerate(self.block_list):
+            self.blocks.append(BlockDataClass(ID=ib, name=bname, state=state0, color='r', world_sz=np.array([10,10])))
+        self.mask = np.array(
+            [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+            [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 0, 1, 1, 1, 1, 1, 1, 0, 0],
+            [0, 0, 0, 1, 1, 1, 1, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+
+
+        self._check_mask = np.copy(self.mask)
+        self.sum = np.sum(self.mask)
+
+class SquareObj:
+    def __init__(self):
+        self.name = "funnel"
+        state0 = [0,0,0]
+        self.block_list = ["I_3x1", "T_3x3", "Y_3X3", "Z_3x2", "L_2x2", "W_3x3","L_3x2",
+                           "P_3x2", "L_2x2", "W_3x3", "I_3x1", "W_3x3", "L_2x2", "U_2x2","Z_3x2","L_2x2","L_3x2",
+                           "U_2x2", "I_3x1", "Y_3x3", "I_3x1",  "L_3x3", "L_3x2",  "W_3x3", "L_3x3" ] # removed I_2x1
+
+
+        self.n_blocks = len(self.block_list)
+        self.blocks = []
+        for ib,bname in enumerate(self.block_list):
+            self.blocks.append(BlockDataClass(ID=ib, name=bname, state=state0, color='r', world_sz=np.array([10,10])))
+        self.mask = np.array(
+            [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 1, 1, 1, 1, 1, 1, 1, 1, 0],
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]])
+
+
         self._check_mask = np.copy(self.mask)
         self.sum = np.sum(self.mask)
 
