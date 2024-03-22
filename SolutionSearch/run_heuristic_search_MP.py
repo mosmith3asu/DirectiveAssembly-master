@@ -90,7 +90,7 @@ def iterate_blocks(structure,mask,blocks,block_states,SOLUTIONS,k=0,plot_sol=Fal
         # Save solution or increase recursion depth
         if is_valid:
             if k == len(blocks) - 1:
-                print(f'\t| \r [{round(100*SOLUTIONS[f"completed"]/SOLUTIONS[f"total"])}%][n={len(SOLUTIONS)}] found!', end='') #
+                print(f'\r \t| [{round(100*SOLUTIONS[f"completed"]/SOLUTIONS[f"total"])}%][n={len(SOLUTIONS)}] found!', end='') #
                 SOLUTIONS[len(SOLUTIONS)+1] = [copy.deepcopy(blk.data) for blk in blocks]
                 if plot_sol: plot_structure(structure, blocks)
                 this_mask = mask.copy() # remove block and continue to find solution
@@ -105,7 +105,7 @@ def iterate_blocks(structure,mask,blocks,block_states,SOLUTIONS,k=0,plot_sol=Fal
 
 
 def mp_worker(iworker,structure,my_combs,valid_states,SOLUTIONS):
-    # n_combs = len(my_combs)
+    print(f'\t| Spawned worker {iworker}...')
     blocks = copy.deepcopy(structure.blocks)
     for ic, c in enumerate(my_combs):
         mask = structure.mask.copy()
@@ -117,8 +117,7 @@ def mp_worker(iworker,structure,my_combs,valid_states,SOLUTIONS):
 
         # if iworker == 1:
         #     print(f'\nPROGRESS: {[SOLUTIONS[f"worker{w}"] for w in range(n_workers)]}')
-
-
+    print(f'\t| FINISHED worker {iworker}...')
 
 def split_combs(combs):
     # n_per_split = int(len(valid_combs)/4)
