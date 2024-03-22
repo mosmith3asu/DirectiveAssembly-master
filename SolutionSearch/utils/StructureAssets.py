@@ -15,18 +15,23 @@ def main():
 
 
 class FunnelObj:
-    def __init__(self):
+    def __init__(self,block_list=None):
         self.name = "funnel"
         state0 = [0,0,0]
-        # self.block_list = ["I_3x1", "L_2x2", "W_3x3", "L_2x2", "L_2x2", "L_2x2",
-        #                       "Y_3x3", "W_3x3", "L_3x2", "I_3x1", "W_3x3", "I_2x1",
-        #                       "L_2x2", "I_2x1", "I_2x1", "L_2x2", "T_3x3"]
-        self.block_list = ["I_3x1", "L_2x2", "W_3x3", "L_2x2", "L_2x2", "L_2x2","Y_3x3",
-                           "W_3x3", "L_3x2", "I_3x1", "W_3x3", "L_2x2", "L_2x2", "T_3x3"] # removed I_2x1
 
-        # self.block_list =    ["Z_3x2", 'Z_3x3', "W_3x3", "T_3x2", "I_3x1", "L_2x2", "L_2x2", "L_2x2"] # 432 solutions
 
-        # self.block_list = ['Z_3x2','U_2x2','U_3x2','L_2x2','L_3x2','W_3x3','T_3x3']; warnings.warn('Test blockset in funnel obj...')
+        if block_list is not None:
+            self.block_list = block_list
+        else:
+            # self.block_list = ["I_3x1", "L_2x2", "W_3x3", "L_2x2", "L_2x2", "L_2x2",
+            #                       "Y_3x3", "W_3x3", "L_3x2", "I_3x1", "W_3x3", "I_2x1",
+            #                       "L_2x2", "I_2x1", "I_2x1", "L_2x2", "T_3x3"]
+            self.block_list = ["I_3x1", "L_2x2", "W_3x3", "L_2x2", "L_2x2", "L_2x2","Y_3x3",
+                               "W_3x3", "L_3x2", "I_3x1", "W_3x3", "L_2x2", "L_2x2", "T_3x3"] # removed I_2x1
+
+            # self.block_list =    ["Z_3x2", 'Z_3x3', "W_3x3", "T_3x2", "I_3x1", "L_2x2", "L_2x2", "L_2x2"] # 432 solutions
+
+            # self.block_list = ['Z_3x2','U_2x2','U_3x2','L_2x2','L_3x2','W_3x3','T_3x3']; warnings.warn('Test blockset in funnel obj...')
 
 
         self.n_blocks = len(self.block_list)
@@ -48,16 +53,18 @@ class FunnelObj:
         self.sum = np.sum(self.mask)
 
 class OvalObj:
-    def __init__(self):
+    def __init__(self,block_list=None):
         self.name = "oval"
         state0 = [0,0,0]
+        if block_list is not None:
+            self.block_list = block_list
+        else:
+            # Infeasible number of searchs
+            # self.block_list = ["W_3x3", "I_3x1", "Z_3x2", "L_2x2", "I_3x1", "T_3x3","L_2x2",
+            #                    "W_3x3", "I_3x1", "W_3x3", "Z_3x3", "U_2x2", "Z_3x2", "L_2x2","L_2x2","U_2x2","I_3x1"] # removed I_2x1
 
-        # Infeasible number of searchs
-        # self.block_list = ["W_3x3", "I_3x1", "Z_3x2", "L_2x2", "I_3x1", "T_3x3","L_2x2",
-        #                    "W_3x3", "I_3x1", "W_3x3", "Z_3x3", "U_2x2", "Z_3x2", "L_2x2","L_2x2","U_2x2","I_3x1"] # removed I_2x1
-
-        self.block_list = ["W_3x3", "Z_3x3", "W_3x3", "Z_3x2", "Z_3x2", "T_3x3", "L_2x2",
-                           "W_3x3", "U_2x2", "I_3x1", "I_3x1", "I_3x1","L_2x2"]
+            self.block_list = ["W_3x3", "Z_3x3", "W_3x3", "Z_3x2", "Z_3x2", "T_3x3", "L_2x2",
+                               "W_3x3", "U_2x2", "I_3x1", "I_3x1", "I_3x1","L_2x2"]
 
 
         self.n_blocks = len(self.block_list)
@@ -81,12 +88,16 @@ class OvalObj:
         self.sum = np.sum(self.mask)
 
 class SquareObj:
-    def __init__(self):
-        self.name = "funnel"
+    def __init__(self,block_list=None):
+        self.name = "square"
         state0 = [0,0,0]
-        self.block_list = ["I_3x1", "T_3x3", "Y_3X3", "Z_3x2", "L_2x2", "W_3x3","L_3x2",
-                           "P_3x2", "L_2x2", "W_3x3", "I_3x1", "W_3x3", "L_2x2", "U_2x2","Z_3x2","L_2x2","L_3x2",
-                           "U_2x2", "I_3x1", "Y_3x3", "I_3x1",  "L_3x3", "L_3x2",  "W_3x3", "L_3x3" ] # removed I_2x1
+
+        if block_list is not None:
+            self.block_list = block_list
+        else:
+            self.block_list = ["I_3x1", "T_3x3", "Y_3X3", "Z_3x2", "L_2x2", "W_3x3","L_3x2",
+                               "P_3x2", "L_2x2", "W_3x3", "I_3x1", "W_3x3", "L_2x2", "U_2x2","Z_3x2","L_2x2","L_3x2",
+                               "U_2x2", "I_3x1", "Y_3x3", "I_3x1",  "L_3x3", "L_3x2",  "W_3x3", "L_3x3" ] # removed I_2x1
 
 
         self.n_blocks = len(self.block_list)
