@@ -11,7 +11,7 @@ import math
 import copy
 import multiprocessing
 
-n_workers = 8
+n_workers = 9
 
 
 def get_checksum_combinations(structure):
@@ -174,7 +174,8 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
 
 def main():
     # structure = FunnelObj()
-    structure = OvalObj()
+    # structure = OvalObj()
+    structure = SquareObj()
     valid_combs = get_checksum_combinations(structure)
     valid_states = search_valid_states(structure)
     search_combination_solutions_heiarchical(structure,valid_combs,valid_states)

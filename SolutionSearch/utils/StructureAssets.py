@@ -63,6 +63,8 @@ class OvalObj:
             # self.block_list = ["W_3x3", "I_3x1", "Z_3x2", "L_2x2", "I_3x1", "T_3x3","L_2x2",
             #                    "W_3x3", "I_3x1", "W_3x3", "Z_3x3", "U_2x2", "Z_3x2", "L_2x2","L_2x2","U_2x2","I_3x1"] # removed I_2x1
 
+            # FOUND SOLUTION
+            # | Fname: oval__N21653__D03-22-2024__T09-29-21
             self.block_list = ["W_3x3", "Z_3x3", "W_3x3", "Z_3x2", "Z_3x2", "T_3x3", "L_2x2",
                                "W_3x3", "U_2x2", "I_3x1", "I_3x1", "I_3x1","L_2x2"]
 
@@ -95,9 +97,13 @@ class SquareObj:
         if block_list is not None:
             self.block_list = block_list
         else:
-            self.block_list = ["I_3x1", "T_3x3", "Y_3X3", "Z_3x2", "L_2x2", "W_3x3","L_3x2",
-                               "P_3x2", "L_2x2", "W_3x3", "I_3x1", "W_3x3", "L_2x2", "U_2x2","Z_3x2","L_2x2","L_3x2",
-                               "U_2x2", "I_3x1", "Y_3x3", "I_3x1",  "L_3x3", "L_3x2",  "W_3x3", "L_3x3" ] # removed I_2x1
+            # Infeasible number of checkshum combs
+            # self.block_list = ["I_3x1", "T_3x3", "Y_3x3", "Z_3x2", "L_2x2", "W_3x3","L_3x2",
+            #                    "P_3x2", "L_2x2", "W_3x3", "I_3x1", "W_3x3", "L_2x2", "U_2x2","Z_3x2","L_2x2","L_3x2",
+            #                    "U_2x2", "I_3x1", "Y_3x3", "I_3x1",  "L_3x3", "L_3x2",  "W_3x3", "L_3x3" ] # removed I_2x1
+            self.block_list = ["L_3x3", "U_2x2", "I_3x1", "W_3x3", "W_3x3", "Z_3x2", "Y_3x3",
+                               "Y_3x3", "Z_3x2", "W_3x3", "W_3x3", "I_3x1", "U_2x2", "L_3x3",
+                                "H_3x3"] # "T_3x3",
 
 
         self.n_blocks = len(self.block_list)
