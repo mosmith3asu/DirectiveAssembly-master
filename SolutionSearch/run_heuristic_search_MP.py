@@ -93,7 +93,7 @@ def iterate_blocks(structure,mask,blocks,block_states,SOLUTIONS,k=0,plot_sol=Fal
                 print(f'\t| \r [{round(100*SOLUTIONS[f"completed"]/SOLUTIONS[f"total"])}%][n={len(SOLUTIONS)}] found!', end='') #
                 SOLUTIONS[len(SOLUTIONS)+1] = [copy.deepcopy(blk.data) for blk in blocks]
                 if plot_sol: plot_structure(structure, blocks)
-                # this_mask = mask.copy() # remove block and continue to find solution
+                this_mask = mask.copy() # remove block and continue to find solution
                 break # if solution is found, this is only valid placement for block
             else:
                 iterate_blocks(structure, this_mask, blocks, block_states,SOLUTIONS, k=k+1)
