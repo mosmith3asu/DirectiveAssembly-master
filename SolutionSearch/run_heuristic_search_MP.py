@@ -90,7 +90,7 @@ def iterate_blocks(structure,mask,blocks,block_states,SOLUTIONS,k=0,plot_sol=Fal
         if is_valid:
             if k == len(blocks) - 1:
                 print(f'\r \t| [{round(100*SOLUTIONS[f"completed"]/SOLUTIONS[f"total"],2)}%][n={len(SOLUTIONS)}] found!', end='') #
-                SOLUTIONS[len(SOLUTIONS)+1] = [copy.deepcopy(blk.data) for blk in blocks]
+                SOLUTIONS[len(SOLUTIONS)-2] = [copy.deepcopy(blk.data) for blk in blocks]
                 if plot_sol: plot_structure(structure, blocks)
                 this_mask = mask.copy() # remove block and continue to find solution
                 break # if solution is found, this is only valid placement for block
@@ -174,8 +174,8 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
 
 
 def main():
-    structure = FunnelObj()
-    # structure = OvalObj()
+    # structure = FunnelObj()
+    structure = OvalObj()
     # structure = SquareObj()
     valid_combs = get_checksum_combinations(structure)
     valid_states = search_valid_states(structure)
