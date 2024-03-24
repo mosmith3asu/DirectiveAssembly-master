@@ -160,6 +160,7 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
         proc.join()
 
     # Save ------------------------------------------------
+    SOLUTIONS = SOLUTIONS.copy() # convert from MP.manager DictProxy to dict
     del SOLUTIONS['total']
     del SOLUTIONS['completed']
     if len(SOLUTIONS) > 0:
@@ -173,9 +174,9 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
 
 
 def main():
-    # structure = FunnelObj()
+    structure = FunnelObj()
     # structure = OvalObj()
-    structure = SquareObj()
+    # structure = SquareObj()
     valid_combs = get_checksum_combinations(structure)
     valid_states = search_valid_states(structure)
     search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
