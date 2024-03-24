@@ -5,6 +5,7 @@ import numpy as np
 from SolutionSearch.utils.DataManagment import load_solutions
 from SolutionSearch.utils.BlockAssets import BlockDataClass
 import copy
+import itertools
 
 class CoactiveAgent():
     """
@@ -41,7 +42,7 @@ class CoactiveAgent():
         print(f'\t| Initializing workspace...')
         self.blocks = self.spawn_blocks_obj_dict(self.block_names)
         self.unfilled_mask = structure.mask.copy()     # current workspace
-        self.block_ID_mask = np.zeros(self.unfilled_mask.shape) # current block ID mask (0=empty
+        # self.block_ID_mask = np.zeros(self.unfilled_mask.shape) # current block ID mask (0=empty
         # self.current_solutions = copy.deepcopy(solutions) # current list of solutions
         # self.current_solution_IDS = (np.arange(self.n_solutions))  # current list of solutions
         self.current_solution_states = copy.deepcopy(self.all_solution_states) # current list of solutions states
@@ -123,11 +124,12 @@ class CoactiveAgent():
     def pick(self):
         """
         Executes high-level decision-making of other pick actions in following priority: reward -> rem_sol ->location
-        :return: block placement choice
+        ! DOES NOT PERFORM ACTION, SIMPLY SELECTS !
+        :return: block placement choice <>ID,state>
         """
         if self.is_complete:
             warnings.warn('Agent tried to pick but assembly is finished...')
-            return None
+            return None, None
 
         # If there are still feasible solutions -----------------
         if len(self.current_solution_states)>0:
@@ -137,7 +139,7 @@ class CoactiveAgent():
             block_ID,state = self.pick_block_by_location(block_choices)
 
             rem_sol = self.check_remaining_solutions(block_ID,state)
-            print(f'Block {block_ID} with state {state} chosen with n={len(rem_sol)} remaining solutions')
+            # print(f'Block {block_ID} with state {state} chosen with n={len(rem_sol)} remaining solutions')
             return block_ID,state
 
         # Remove a block s.t. there are feasible solutions -----------------
@@ -153,16 +155,11 @@ class CoactiveAgent():
             remove_options = [block_ID for block_ID in num_sol_after_remove.keys() if num_sol_after_remove[block_ID]==max_num_sol]
             block_ID = np.random.choice(remove_options)
             state = None
-            print(f'{num_sol_after_remove}')
-            print(f'Choosing to remove block {block_ID} with n={max_num_sol} remaining solutions')
+            # print(f'{num_sol_after_remove}')
+            # print(f'Choosing to remove block {block_ID} with n={max_num_sol} remaining solutions')
             return block_ID,state
 
 
-
-
-
-
-            assert Exception('Unfinished...')
     def pick_solutions_with_max_reward(self,sol_IDs):
         """
         Pick the block placement(s) that generate solutions with the highest potential reward
@@ -294,47 +291,24 @@ class CoactiveAgent():
                 if is_valid: rem_sol_IDs.append(sol_ID)
 
 
-            if to_remove:
-                return sol2remove # return which solutions to remove
-            else:
-                return rem_sol_IDs # return which solutions are valid
+            if to_remove: return sol2remove # return which solutions to remove
+            else: return rem_sol_IDs # return which solutions are valid
 
-    # def recalc_all_remaining_solutions(self):
-    #     """
-    #     Get the remaining solutions given the placed blocks
-    #     - Option 1: check if any remaining blocks are a subset of each self.solutions
-    #     - Option 2: Somehow check the mask? (faster?)
-    #     - Option 3: Do recursive search (likely slower depending on how many blocks remaining)
-    #
-    #      # valid solutions must match states of placed blocks (eliminates other block placements)
-    #         # invalid solutions do not contain block ID from placed blocks
-    #         # invalid solutions do not contain block ID in state S from placed blocks.
-    #         # Always order in increasing ID order to decrease compare time
-    #         # REDUNDANT (DONT DO): valid solutions must contain IDs of placed block  (eliminates other block combinations)
-    #         # REDUNDANT (DONT DO): valid solutions must contain IDs of unplaced blocks
-    #     :return:
-    #     """
-    #     sol2remove = [] # lists of invalidated indicies
-    #     for sol_ID, sol_block_states in self.current_solution_states.items():
-    #         sol_block_IDs = list(sol_block_states.keys())
-    #
-    #         for block_ID in self.placed_block_IDs:
-    #             # invalid solution ==> remove; do not search blocks
-    #             if not block_ID in sol_block_IDs: sol2remove.append(sol_ID);  break
-    #             elif not np.all(self.blocks[block_ID].state == sol_block_states[block_ID]): sol2remove.append(sol_ID); break
-    #
-    #     for sol_ID in sol2remove:
-    #         del self.current_solution_states[sol_ID]
-    #
-    #     print(f'Nsol = {len(self.current_solution_states)}')
-    #     return None
 
     ########################################################################
     ## Gamestate Updates ###################################################
     ########################################################################
+    def update_block(self,block_ID,state):
+        """
+        Update the block state in the workspace, handle add/remove routing
+        :param block_ID: ID of block to update
+        :param state: new state of block
+        """
+        if state is None:  self.update_remove_block(block_ID)
+        else: self.update_place_block(block_ID,state)
 
     def update_place_block(self,block_ID,state):
-        assert block_ID in self.unplaced_block_IDs, f'Block {block_ID} is already placed...'
+        assert block_ID not in self.placed_block_IDs, f'Block {block_ID} is already placed...'
         state = np.array(state)
         self.blocks[block_ID](state) # update block obj
         self.placed_block_IDs.append(block_ID)  # add to placed blocks
@@ -351,7 +325,7 @@ class CoactiveAgent():
 
 
     def update_remove_block(self,block_ID):
-        assert block_ID in self.placed_block_IDs, f'Block {block_ID} is already removed...'
+        assert block_ID not in self.unplaced_block_IDs, f'Block {block_ID} is already removed...'
         self.unplaced_block_IDs.append(block_ID)  # add to placed blocks
         self.unplaced_block_IDs.sort()  # Make sure lists are sorted
         self.placed_block_IDs.remove(block_ID)  # remove from unplaced blokcs
@@ -399,25 +373,48 @@ class CoactiveAgent():
 def main():
     directory = '../SolutionSearch/Solutions/'
     # data_name = 'funnel__N137__D03-23-2024__T20-03-05.pkl'
-    data_name = 'funnel__N2167__D03-23-2024__T21-47-08.pkl'
-    # data_name = 'funnel__N263534__D03-24-2024__T04-55-17.pkl'
+    # data_name = 'funnel__N2167__D03-23-2024__T21-47-08.pkl'
+    data_name = 'funnel__N263534__D03-24-2024__T04-55-17.pkl'
     structure, sols = load_solutions(data_name, dir=directory)
 
     agent = CoactiveAgent(structure, sols)
 
-    temp_solutions = {} # [isol][block_ID]
-    temp_solutions[0] = {0: (3, 2, 1), 2: (4, 3, 2), 3: (1, 4, 3)}
-    temp_solutions[7] = {0: (3, 2, 1), 2: (4, 3, 2), 3: (6, 5, 1)}
+    human_actions = [(0, [3, 2, 1]), # incorrect
+                     (1, [4, 4, 0]), # correct
+                     (2, [3, 2, 3]), # correct
+                     (7, [2, 6, 0]),  # incorrect
+                     (4, [4, 5, 2]), # correct
+                     ]
+
+    for t in itertools.count():
+
+        if t < len(human_actions):
+            block_ID, state = human_actions[t]
+            agent.update_block(block_ID=block_ID, state=state)
+            print(f'\n[t={t}] HUMAN moving block {block_ID} to state {state} | NSOL = {len(agent.current_solution_states)}')
+        else:   print(f'\n Human out of moves')
+
+        if agent.is_complete: print(f'\nCompleted structure!'); break
+
+        block_ID, state = agent.pick()
+        agent.update_block(block_ID=block_ID, state=state)
+        print(f'[t={t}] AGENT moving block {block_ID} to state {state} | NSOL = {len(agent.current_solution_states)}')
+        # print(agent.unfilled_mask)
+
+        if agent.is_complete: print(f'\nCompleted structure!'); break
+
+
+    # DEPRICATED ------------------------------------------------------------
 
     # Seach for incompatible solutions to state 2 but complys with state 0
-    state ={}
-    state[0] = np.array([3, 2, 1])
-    state[2] = np.array([4, 3, 2])
+    # state ={}
+    # state[0] = np.array([3, 2, 1])
+    # state[2] = np.array([4, 3, 2])
     # state[3] = (1, 4, 3) # in solution 7
     # state[3] = (6, 5, 1)  # in solution 0
     # state[3] = (1, 6, 1)  # in solution 0
     # state[3] = (4, 2, 0)  # in solution 0
-    state[3] = (3,3,3)  # not compatable with block 0 or 2 sol 7
+    # state[3] = (3,3,3)  # not compatable with block 2 but is with block 0 sol 7
 
     #
     # compatable_states = []
@@ -428,27 +425,15 @@ def main():
     #         if np.all(state[0] == sol_states[0]):
     #             print(sol_ID, sol_states[3])
 
-
-
-
-    print(f'Initial # solutions = {len(agent.current_solution_states)}')
+    # print(f'Initial # solutions = {len(agent.current_solution_states)}')
 
     # Simulate placing blocks from solutions
-    agent.update_place_block(block_ID=0, state=state[0]) # in solution 7
-    print(f'Place block 0 ==> # solutions = {len(agent.current_solution_states)}')
-    agent.update_place_block(block_ID=2, state=state[2])  # in solution 7
-    print(f'Place block 2 ==> # solutions = {len(agent.current_solution_states)}')
-    agent.update_place_block(block_ID=3, state= state[3])
-    print(f'Place block 3 ==> # solutions = {len(agent.current_solution_states)}')
-
-
-
-
-    # agent.update_place_block(block_ID=3, state=(0, 4, 3))  # invalid solution
+    # agent.update_place_block(block_ID=0, state=state[0]) # in solution 7
+    # print(f'Place block 0 ==> # solutions = {len(agent.current_solution_states)}')
+    # agent.update_place_block(block_ID=2, state=state[2])  # in solution 7
+    # print(f'Place block 2 ==> # solutions = {len(agent.current_solution_states)}')
+    # agent.update_place_block(block_ID=3, state= state[3])
     # print(f'Place block 3 ==> # solutions = {len(agent.current_solution_states)}')
-
-    block_ID,state = agent.pick()
-    print(f'Block {block_ID} with state {state} chosen')
 
     # Check wich removal is best
     # rem_sol = agent.check_remaining_solutions(2,None, force_remove=True)
@@ -457,26 +442,16 @@ def main():
     # print(f'Remove block 3 --> Remaining solutions = {len(rem_sol)}')
 
 
-
-
-
-    #
+    # Removes
     # agent.update_remove_block(3)
     # print(f'Remove block 3 --> Remaining solutions = {len(agent.current_solution_states)}')
-    #
     # agent.update_remove_block(2)
     # print(f'Remove block 2 --> Remaining solutions = {len(agent.current_solution_states)}')
-    #
     # agent.update_remove_block(0)
     # print(f'Remove block 0 --> Remaining solutions = {len(agent.current_solution_states)}')
 
-    #
-    # for ib in range(7):
-    #     block_ID, state = agent.pick()
-    #     agent.update_place_block(block_ID=block_ID, state=state)
-    #     print(agent.unfilled_mask)
-
-
+    # block_ID,state = agent.pick()
+    # print(f'Block {block_ID} with state {state} chosen')
 
 
 if __name__ == "__main__":
