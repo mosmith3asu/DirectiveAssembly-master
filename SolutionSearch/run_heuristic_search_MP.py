@@ -10,6 +10,7 @@ import itertools
 import math
 import copy
 import multiprocessing
+import random
 
 n_workers = 9
 
@@ -142,6 +143,9 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
     print(f'\t| Structure: [{structure.name}]')
 
     # Split combinations for each worker -------------------------------
+    random.shuffle(valid_combs) # shuffle to distribute work evenly
+
+    3333333333333333333333
     comb_slits = split_combs(valid_combs)
 
     # Set up MP manager ------------------------------------------------
@@ -174,8 +178,8 @@ def search_combination_solutions_heiarchical(structure,valid_combs,valid_states)
 
 
 def main():
-    # structure = FunnelObj()
-    structure = OvalObj()
+    structure = FunnelObj()
+    # structure = OvalObj()
     # structure = SquareObj()
     valid_combs = get_checksum_combinations(structure)
     valid_states = search_valid_states(structure)
