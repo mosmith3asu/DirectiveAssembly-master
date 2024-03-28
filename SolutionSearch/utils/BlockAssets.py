@@ -213,7 +213,9 @@ class BlockDataClass:
     @property
     def mask(self):
         return self.layer
-
+    @property
+    def block_mask(self):
+        return BlockDataClass.AssetDict[self.name]
     @property
     def sum(self):
         return np.sum(BlockDataClass.AssetDict[self.name])

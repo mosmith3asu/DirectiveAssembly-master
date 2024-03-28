@@ -218,13 +218,6 @@ class CoactiveAgent():
     ########################################################################
     ## Evaluation of Gamestate #############################################
     ########################################################################
-    def get_max_potential_reward(self,placed_blocks):
-        """
-        Gets the maximum potential reward of placed blocks in the WS given available blocks
-        :param placed_blocks:
-        :return:
-        """
-
     def check_remaining_solutions(self, block_ID,state,to_remove=False,to_add=False,force_remove=False):
         """
         Check which solutions are still valid given the current block placements (or removals)
@@ -373,8 +366,8 @@ class CoactiveAgent():
 def main():
     directory = '../SolutionSearch/Solutions/'
     # data_name = 'funnel__N137__D03-23-2024__T20-03-05.pkl'
-    # data_name = 'funnel__N2167__D03-23-2024__T21-47-08.pkl'
-    data_name = 'funnel__N263534__D03-24-2024__T04-55-17.pkl'
+    data_name = 'funnel__N2167__D03-23-2024__T21-47-08.pkl'
+    # data_name = 'funnel__N263534__D03-24-2024__T04-55-17.pkl'
     structure, sols = load_solutions(data_name, dir=directory)
 
     agent = CoactiveAgent(structure, sols)
@@ -386,29 +379,30 @@ def main():
                      (4, [4, 5, 2]), # correct
                      ]
 
-    for t in itertools.count():
-
-        if t < len(human_actions):
-            block_ID, state = human_actions[t]
-            agent.update_block(block_ID=block_ID, state=state)
-            print(f'\n[t={t}] HUMAN moving block {block_ID} to state {state} | NSOL = {len(agent.current_solution_states)}')
-        else:   print(f'\n Human out of moves')
-
-        if agent.is_complete: print(f'\nCompleted structure!'); break
-
-        block_ID, state = agent.pick()
-        agent.update_block(block_ID=block_ID, state=state)
-        print(f'[t={t}] AGENT moving block {block_ID} to state {state} | NSOL = {len(agent.current_solution_states)}')
-        # print(agent.unfilled_mask)
-
-        if agent.is_complete: print(f'\nCompleted structure!'); break
+    # # Simulate human and agent actions
+    # for t in itertools.count():
+    #
+    #     if t < len(human_actions):
+    #         block_ID, state = human_actions[t]
+    #         agent.update_block(block_ID=block_ID, state=state)
+    #         print(f'\n[t={t}] HUMAN moving block {block_ID} to state {state} | NSOL = {len(agent.current_solution_states)}')
+    #     else:   print(f'\n Human out of moves')
+    #
+    #     if agent.is_complete: print(f'\nCompleted structure!'); break
+    #
+    #     block_ID, state = agent.pick()
+    #     agent.update_block(block_ID=block_ID, state=state)
+    #     print(f'[t={t}] AGENT moving block {block_ID} to state {state} | NSOL = {len(agent.current_solution_states)}')
+    #     # print(agent.unfilled_mask)
+    #
+    #     if agent.is_complete: print(f'\nCompleted structure!'); break
 
 
     # DEPRICATED ------------------------------------------------------------
 
     # Seach for incompatible solutions to state 2 but complys with state 0
-    # state ={}
-    # state[0] = np.array([3, 2, 1])
+    state ={}
+    state[0] = np.array([3, 2, 1])
     # state[2] = np.array([4, 3, 2])
     # state[3] = (1, 4, 3) # in solution 7
     # state[3] = (6, 5, 1)  # in solution 0
@@ -428,8 +422,9 @@ def main():
     # print(f'Initial # solutions = {len(agent.current_solution_states)}')
 
     # Simulate placing blocks from solutions
+    agent.update_block(block_ID=0, state=state[0])  # in solution 7
     # agent.update_place_block(block_ID=0, state=state[0]) # in solution 7
-    # print(f'Place block 0 ==> # solutions = {len(agent.current_solution_states)}')
+    print(f'Place block 0 ==> # solutions = {len(agent.current_solution_states)}')
     # agent.update_place_block(block_ID=2, state=state[2])  # in solution 7
     # print(f'Place block 2 ==> # solutions = {len(agent.current_solution_states)}')
     # agent.update_place_block(block_ID=3, state= state[3])

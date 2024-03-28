@@ -1,6 +1,5 @@
 import numpy as np
 import scipy.ndimage
-from scipy.ndimage import find_objects
 # import matplotlib.pyplot as plt
 
 

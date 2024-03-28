@@ -12,7 +12,8 @@ def plot_structure(structure,blocks, ax=None, show=True):
     :param show: show the plot or pass
     :return: None
     """
-    Clist = ['white', 'lightgray', 'green', 'blue', 'brown', 'olive', 'pink', 'cyan','darkorchid','darkblue','wheat']
+    Clist = ['white', 'lightgray', 'green', 'blue', 'brown', 'olive', 'pink','greenyellow', 'cyan','darkorchid','darkblue','wheat',
+             'gold','lightpink','purple']
     assert len(blocks)<len(Clist)
     smask = structure.mask.copy()
 
@@ -36,7 +37,7 @@ def plot_structure(structure,blocks, ax=None, show=True):
         smask += 1
         Clist = ['red'] + Clist
     ncolors = len(np.unique(smask))
-    cmap = ListedColormap(Clist[:ncolors])
+    cmap = ListedColormap(Clist[:ncolors+1])
 
     # Plot array as image -----------------
     if ax is None: fig,ax = plt.subplots(1,1)
@@ -54,15 +55,16 @@ def plot_mask(mask, ax=None, show=True):
     :param show: show the plot or pass
     :return: None
     """
-    Clist = ['white', 'lightgray']
+    Clist = ['white', 'lightgray', 'green', 'blue', 'brown', 'olive', 'pink',]
 
 
     # Fix colormap for invalid placmeents ----------
     if np.any(mask==-1):
         mask += 1
         Clist = ['red'] + Clist
-    cmap = ListedColormap(Clist)
-
+    # cmap = ListedColormap(Clist)
+    ncolors = len(np.unique(mask))
+    cmap = ListedColormap(Clist[:ncolors ])
     # Plot array as image -----------------
     if ax is None: fig,ax = plt.subplots(1,1)
     ax.imshow(mask, cmap=cmap)
